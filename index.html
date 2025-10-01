@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>*: Site de Git Officiel</title>
+  <meta name="description" content="Page d'accueil stylée pour le site de Git — exemple coloré avec emoji">
+  <style>
+    :root{
+      --bg1: #0f172a;
+      --bg2: #0f2a4a;
+      --card: rgba(255,255,255,0.06);
+      --accent1: #06b6d4; /* cyan */
+      --accent2: #7c3aed; /* violet */
+      --glass: rgba(255,255,255,0.04);
+      --muted: rgba(255,255,255,0.7);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+      background: linear-gradient(135deg,var(--bg1) 0%, var(--bg2) 100%);
+      color: #fff;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:2rem;
+    }
+    .container{
+      width:100%;
+      max-width:1100px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+      border-radius:18px;
+      box-shadow: 0 10px 30px rgba(2,6,23,0.6);
+      overflow:hidden;
+      display:grid;
+      grid-template-columns: 1fr 420px;
+      gap:24px;
+      padding:28px;
+      backdrop-filter: blur(6px) saturate(120%);
+      border: 1px solid rgba(255,255,255,0.04);
+    }
+    header h1{
+      margin:0 0 8px 0;
+      font-size:clamp(20px,4vw,36px);
+      line-height:1.05;
+      letter-spacing: -0.5px;
+    }
+    header p.lead{
+      margin:0 0 18px 0;
+      color:var(--muted);
+      font-size:15px;
+    }
+    .hero{
+      padding:18px 22px;
+    }
+    .badge{
+      display:inline-flex;
+      gap:10px;
+      align-items:center;
+      background:linear-gradient(90deg,var(--accent1),var(--accent2));
+      padding:8px 12px;
+      border-radius:999px;
+      font-weight:600;
+      color:#061018;
+      margin-bottom:14px;
+      box-shadow: 0 6px 18px rgba(12,18,30,0.5);
+    }
+    .cta-row{display:flex;gap:12px;align-items:center;margin-top:18px}
+    .btn{
+      padding:10px 14px;
+      border-radius:10px;
+      font-weight:700;
+      cursor:pointer;
+      border: none;
+      background: var(--glass);
+      color: #fff;
+      transition:transform .12s ease, box-shadow .12s ease;
+    }
+    .btn.primary{
+      background: linear-gradient(90deg,var(--accent1),var(--accent2));
+      color:#021320;
+      box-shadow: 0 8px 24px rgba(124,58,237,0.18);
+    }
+    .btn:active{transform:translateY(1px)}
+    .features{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap:12px;
+      margin-top:18px;
+    }
+    .card{
+      background: var(--card);
+      padding:12px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,0.03);
+    }
+    .right-panel{
+      padding:20px;
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+      align-items:stretch;
+    }
+    .repo-card{
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      padding:14px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,0.03);
+    }
+    .small{font-size:13px;color:var(--muted)}
+    footer{margin-top:18px;color:var(--muted);font-size:13px}
+    .logo{
+      display:inline-grid;
+      place-items:center;
+      width:56px;height:56px;border-radius:12px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+      border:1px solid rgba(255,255,255,0.04);
+      margin-right:12px;
+    }
+    .hero-grid{display:flex;align-items:center}
+    pre.cmd{background:rgba(0,0,0,0.2);padding:10px;border-radius:8px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;font-size:13px}
+    @media (max-width:900px){
+      .container{grid-template-columns:1fr;}
+      .right-panel{order:2}
+    }
+  </style>
+</head>
+<body>
+  <main class="container" role="main">
+    <section class="hero">
+      <div class="hero-grid">
+        <div class="logo" aria-hidden="true">🔧</div>
+        <div>
+          <header>
+            <div class="badge">✨ Nouveau · Demo</div>
+            <h1>*: Site de Git Officiel — Bienvenue ! 🐙</h1>
+            <p class="lead">Un petit site stylé pour présenter Git, son workflow et comment se connecter depuis ta machine. Simple, clair et coloré.</p>
+          </header>
+        </div>
+      </div>
+
+      <div class="features" style="margin-top:16px;">
+        <div class="card">
+          <strong>🔐 Authentification</strong>
+          <div class="small">SSH recommandé — plus sûr et pratique pour push/pull sans mot de passe.</div>
+        </div>
+        <div class="card">
+          <strong>⚡ Rapide</strong>
+          <div class="small">Configuration locale et globale, remote SSH, et bonnes pratiques.</div>
+        </div>
+        <div class="card">
+          <strong>🧭 Guide</strong>
+          <div class="small">Exemples de commandes utiles pour démarrer rapidement.</div>
+        </div>
+        <div class="card">
+          <strong>🎨 Personnalisation</strong>
+          <div class="small">Thème sombre, couleurs vives et emoji pour rendre l'interface fun.</div>
+        </div>
+      </div>
+
+      <div class="cta-row">
+        <button class="btn primary" onclick="copyExample()">📋 Copier les commandes Git</button>
+        <button class="btn" onclick="openRepo()">🔗 Voir le dépôt</button>
+      </div>
+
+      <div style="margin-top:16px">
+        <div class="card">
+          <strong>Exemple rapide</strong>
+          <pre class="cmd" id="cmdSample"># Générer une clé SSH
+ssh-keygen -t ed25519 -C "ton.email@example.com"
+
+# Ajouter la clé à l'agent
+eval "$(ssh-agent -s)" && ssh-add ~/.ssh/id_ed25519
+
+# Changer le remote en SSH
+git remote set-url origin git@github.com:utilisateur/repo.git
+
+# Envoyer la branche principale
+git push -u origin master
+</pre>
+        </div>
+      </div>
+
+      <footer>
+        ✨ Construit avec ❤️ — Amuse-toi bien avec Git !
+      </footer>
+    </section>
+
+    <aside class="right-panel">
+      <div class="repo-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div style="font-weight:800">🐙 Mon dépôt demo</div>
+            <div class="small">git@github.com:utilisateur/demo.git</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-weight:700">⭐ 123</div>
+            <div class="small">Forks · 42</div>
+          </div>
+        </div>
+        <div style="margin-top:12px;display:flex;gap:8px;">
+          <button class="btn" onclick="cloneDemo()">⤓ Clone</button>
+          <button class="btn" onclick="openRepo()">🔍 Ouvrir</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <strong>Astuce rapide</strong>
+        <div class="small" style="margin-top:8px">Si tu as plusieurs clés SSH, utilise <code>ssh-add -l</code> pour les lister et <code>ssh -T git@github.com</code> pour tester l'authentification.</div>
+      </div>
+
+      <div class="card">
+        <strong>Contact</strong>
+        <div class="small" style="margin-top:8px">Besoin d'aide ? Ouvre une issue sur le dépôt ou contacte <em>support@example.com</em>.</div>
+      </div>
+    </aside>
+  </main>
+
+  <script>
+    function copyExample(){
+      const txt = document.getElementById('cmdSample').innerText;
+      navigator.clipboard?.writeText(txt).then(()=>{
+        alert('Commandes copiées dans le presse-papiers ✅');
+      }).catch(()=>{
+        prompt('Copie manuellement:', txt);
+      });
+    }
+    function openRepo(){
+      window.open('https://github.com', '_blank');
+    }
+    function cloneDemo(){
+      prompt('Commande de clone', 'git clone git@github.com:utilisateur/demo.git');
+    }
+  </script>
+</body>
+</html>
