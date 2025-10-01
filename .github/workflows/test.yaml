@@ -1,28 +1,63 @@
-name: Node.js CI
+name: Docker Compose CI
 
 on:
   push:
-    branches: ["main"]
+  pull_request:
 
 jobs:
-  build:
+  docker:
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [18.x, 20.x] # Tu peux ajuster la version de Node.js
-
     steps:
-      - name: Checkout code
+      - name: Récupérer le code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
+      - name: Configurer Docker Compose
+        run: |
+          docker --version
+          docker compose version || true
 
-      - name: Install dependencies
-        run: npm install
+      - name: Lancer MySQL, WordPress et Adminer
+        run: |
+          cat > docker-compose.yml <<'EOF'
+          version: '3.8'
+          services:
+            db:
+              image: mysql:8.0
+              restart: always
+              environment:
+                MYSQL_DATABASE: wordpress
+                MYSQL_USER: wpuser
+                MYSQL_PASSWORD: wppass
+                MYSQL_ROOT_PASSWORD: rootpass
+              ports:
+                - "3306:3306"
+            wordpress:
+              image: wordpress:latest
+              restart: always
+              ports:
+                - "8080:80"
+              environment:
+                WORDPRESS_DB_HOST: db:3306
+                WORDPRESS_DB_USER: wpuser
+                WORDPRESS_DB_PASSWORD: wppass
+                WORDPRESS_DB_NAME: wordpress
+              depends_on:
+                - db
+            adminer:
+              image: adminer
+              restart: always
+              ports:
+                - "8081:8080"
+          EOF
+          docker compose up -d
+          sleep 30 # on attend que les services démarrent
 
-      - name: Run tests
-        run: npm test
+      - name: Vérifier que les containers tournent
+        run: docker ps
+
+      - name: Vérifier que WordPress répond
+        run: curl -I http://localhost:8080 || exit 1
+
+      - name: Vérifier qu’Adminer répond
+        run: curl -I http://localhost:8081 || exit 1
