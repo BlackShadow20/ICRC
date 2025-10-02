@@ -14,7 +14,7 @@ jobs:
       WP_DB_PASSWORD: poseidon
       WP_DB_NAME: wordpress
       WP_DB_HOST: db:3306
-      DOCKER_IMAGE: icrc/wordpress-ci:latest
+      DOCKER_IMAGE: icrc:latest
 
     steps:
       - name: Vérification du code
