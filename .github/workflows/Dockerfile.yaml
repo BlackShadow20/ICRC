@@ -67,22 +67,17 @@ jobs:
       - name: Lance Docker Compose
         run: docker compose up -d
 
-      - name: Wait for MySQL to be ready
+      - name: Wait for WordPress to be ready
         run: |
-          echo "Waiting for MySQL container..."
-          until docker ps | grep db; do
-            echo "Waiting for container db..."
-            sleep 2
-          done
-
-          echo "Container db started, checking MySQL readiness..."
+          echo "Waiting for WordPress container..."
           for i in {1..30}; do
-            if docker exec db mysql -u"$WP_DB_USER" -p"$WP_DB_PASSWORD" -e "SELECT 1" >/dev/null 2>&1; then
-              echo "MySQL is ready!"
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080)
+            if [ "$STATUS" -eq 200 ]; then
+              echo "WordPress is ready!"
               break
             fi
-            echo "Waiting for MySQL..."
-            sleep 2
+            echo "Waiting for WordPress..."
+            sleep 5
           done
 
       - name: Test WordPress
