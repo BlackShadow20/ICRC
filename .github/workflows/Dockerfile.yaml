@@ -2,7 +2,7 @@ name: CI/CD LAMP
 
 on:
   push:
-    branches: ["master"]
+    branches: [ "master" ]
   pull_request:
   workflow_dispatch:
 
@@ -25,7 +25,7 @@ jobs:
           docker --version
           docker compose version || true
 
-      - name: Configure docker-compose.yml
+      - name: Configure ‘docker-compose.yml’
         run: |
           cat > docker-compose.yml <<'EOF'
           version: '3.8'
@@ -40,10 +40,9 @@ jobs:
               ports:
                 - "3306:3306"
               healthcheck:
-                test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uuser", "-pposeidon"]
+                test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1"]
                 interval: 5s
                 retries: 10
-                start_period: 10s
 
             wordpress:
               image: wordpress:latest
@@ -70,28 +69,29 @@ jobs:
       - name: Wait for MySQL to be ready
         run: |
           echo "Waiting for MySQL readiness..."
-          MAX_RETRIES=30
-          COUNT=0
-          until docker exec db mysql -u"$WP_DB_USER" -p"$WP_DB_PASSWORD" -e "SELECT 1" >/dev/null 2>&1; do
-            COUNT=$((COUNT+1))
-            if [ $COUNT -ge $MAX_RETRIES ]; then
-              echo "MySQL did not become ready in time"
-              exit 1
+          for i in {1..60}; do
+            if docker exec db mysql -u"$WP_DB_USER" -p"$WP_DB_PASSWORD" -e "SELECT 1" >/dev/null 2>&1; then
+              echo "MySQL is ready!"
+              break
             fi
             echo "Waiting for MySQL..."
-            sleep 5
+            sleep 2
           done
-          echo "MySQL is ready."
-          sleep 10  # Laisser WordPress démarrer
+          # Vérifier si MySQL est prêt après 60 tentatives
+          if ! docker exec db mysql -u"$WP_DB_USER" -p"$WP_DB_PASSWORD" -e "SELECT 1" >/dev/null 2>&1; then
+            echo "MySQL did not become ready in time"
+            docker logs db
+            exit 1
+          fi
 
       - name: Test WordPress
         run: |
-          curl -f http://localhost:8080 || { echo "WordPress is not reachable"; exit 1; }
-          echo "WordPress is up!"
+          curl -f http://localhost:8080 || exit 1
           docker exec db mysql -u"$WP_DB_USER" -p"$WP_DB_PASSWORD" -e "SHOW DATABASES;"
 
       - name: Construire l’image Docker
-        run: docker build -t $DOCKER_IMAGE .
+        run: |
+          docker build -t $DOCKER_IMAGE .
 
       - name: Connexion au Docker registry
         uses: docker/login-action@v2
