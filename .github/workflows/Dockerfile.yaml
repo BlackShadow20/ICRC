@@ -70,7 +70,7 @@ jobs:
         run: |
           echo "Waiting for MySQL readiness..."
           for i in {1..60}; do
-            if docker exec db mysql -u"$WP_DB_USER" -p"$WP_DB_PASSWORD" -e "SELECT 1" >/dev/null 2>&1; then
+            if docker exec $DB_CONTAINER mysql -u"$WP_DB_USER" -p"$WP_DB_PASSWORD" -e "SELECT 1" >/dev/null 2>&1; then
               echo "MySQL is ready!"
               break
             fi
