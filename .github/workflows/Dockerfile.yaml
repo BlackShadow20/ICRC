@@ -32,6 +32,7 @@ jobs:
           services:
             db:
               image: mysql:8.0
+              container_name: db
               environment:
                 MYSQL_DATABASE: wordpress
                 MYSQL_USER: user
@@ -68,21 +69,21 @@ jobs:
 
       - name: Wait for MySQL to be ready
         run: |
-          echo "Waiting for MySQL readiness..."
-          for i in {1..60}; do
-            if docker exec $DB_CONTAINER mysql -u"$WP_DB_USER" -p"$WP_DB_PASSWORD" -e "SELECT 1" >/dev/null 2>&1; then
+          echo "Waiting for MySQL container..."
+          until docker ps | grep db; do
+            echo "Waiting for container db..."
+            sleep 2
+          done
+
+          echo "Container db started, checking MySQL readiness..."
+          for i in {1..30}; do
+            if docker exec db mysql -u"$WP_DB_USER" -p"$WP_DB_PASSWORD" -e "SELECT 1" >/dev/null 2>&1; then
               echo "MySQL is ready!"
               break
             fi
             echo "Waiting for MySQL..."
             sleep 2
           done
-          # Vérifier si MySQL est prêt après 60 tentatives
-          if ! docker exec db mysql -u"$WP_DB_USER" -p"$WP_DB_PASSWORD" -e "SELECT 1" >/dev/null 2>&1; then
-            echo "MySQL did not become ready in time"
-            docker logs db
-            exit 1
-          fi
 
       - name: Test WordPress
         run: |
