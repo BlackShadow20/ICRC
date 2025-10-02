@@ -62,13 +62,13 @@ jobs:
               ports:
                 - "8081:8080"
           EOF
+
       - name: Lance Docker Compose
         run: docker compose up -d
 
       - name: Wait for MySQL container
         run: |
           echo "Waiting for MySQL container..."
-          # récupère le vrai nom du container
           DB_CONTAINER=$(docker compose ps -q db)
           for i in {1..30}; do
             if docker exec "$DB_CONTAINER" mysql -u"$WP_DB_USER" -p"$WP_DB_PASSWORD" -e "SELECT 1" >/dev/null 2>&1; then
@@ -82,7 +82,6 @@ jobs:
       - name: Wait for WordPress container
         run: |
           echo "Waiting for WordPress container..."
-          WP_CONTAINER=$(docker compose ps -q wordpress)
           for i in {1..30}; do
             if curl -sf http://localhost:8080 >/dev/null; then
               echo "WordPress is ready!"
@@ -93,6 +92,20 @@ jobs:
           done
 
       - name: Test WordPress
-        run: |
-          WP_CONTAINER=$(docker compose ps -q wordpress)
-          curl -f http://localhost:8080 || exit 1
+        run: curl -f http://localhost:8080 || exit 1
+
+      - name: Construire l’image Docker
+        run: docker build -t $DOCKER_IMAGE .
+
+      - name: Connexion au Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      - name: Push Image Docker
+        run: docker push $DOCKER_IMAGE
+
+      - name: Nettoyage
+        if: always()
+        run: docker compose down
