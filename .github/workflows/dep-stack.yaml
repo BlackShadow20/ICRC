@@ -85,11 +85,6 @@ jobs:
           WP_CONTAINER=$(docker compose ps -q wordpress)
           docker exec "$WP_CONTAINER" bash -c "apt-get update && apt-get install -y default-mysql-client"
 
-      - name: Tester MySQL depuis WordPress
-        run: |
-          WP_CONTAINER=$(docker compose ps -q wordpress)
-          docker exec "$WP_CONTAINER" mysql -h 127.0.0.1 -u"$WP_DB_USER" -p"$WP_DB_PASSWORD" -e "SHOW DATABASES;"
-
       - name: Wait for WordPress container
         run: |
           echo "Waiting for WordPress container..."
