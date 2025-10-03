@@ -70,7 +70,7 @@ services:
     image: adminer
     ports:
       - "8081:8080"
-EOF # <-- CORRECTED: This line must have no leading spaces.
+#EOF # <-- CORRECTED: This line must have no leading spaces.
 
       - name: Lance Docker Compose
         run: docker compose up -d
