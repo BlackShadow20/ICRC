@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       WP_DB_USER: jean
-      WP_DB_PASSWORD: ${{ secrets.MOT_DE_PASSE_WP }}
+      WP_DB_PASSWORD:  ${{ secrets.MOT_DE_PASSE_WP }}
       WP_DB_NAME: wordpress
       WP_DB_HOST: db:3306
       DOCKER_IMAGE: blackshadow20/icrc:latest
@@ -28,7 +28,6 @@ jobs:
       - name: Configure docker-compose.yml
         run: |
           cat > docker-compose.yml <<'EOF'
-          version: '3.8'
           services:
             db:
               container_name: db
@@ -54,9 +53,9 @@ jobs:
                 - "8080:80"
               environment:
                 WORDPRESS_DB_HOST: db:3306
-                WORDPRESS_DB_USER: ${{ env.WP_DB_USER }}
-                WORDPRESS_DB_PASSWORD: ${{ env.WP_DB_PASSWORD }}
-                WORDPRESS_DB_NAME: ${{ env.WP_DB_NAME }}
+                WORDPRESS_DB_USER: jean
+                WORDPRESS_DB_PASSWORD: ${{ secrets.MOT_DE_PASSE_WP }}
+                WORDPRESS_DB_NAME: wordpress
 
             adminer:
               image: adminer
@@ -72,9 +71,9 @@ jobs:
           echo "Waiting for MySQL container..."
           DB_CONTAINER=$(docker compose ps -q db)
           for i in {1..30}; do
-            if docker exec "$DB_CONTAINER" mysql -u"$WP_DB_USER" -p"$WP_DB_PASSWORD" -e "SELECT 1" >/dev/null 2>&1; then
+            if docker exec "$DB_CONTAINER" mysql -u"$WP_DB_USER" -p"$WP_DB_PASSWORD" --ssl-mode=DISABLED -e "SELECT 1" >/dev/null 2>&1; then
               echo "MySQL is ready!"
-              docker exec "$DB_CONTAINER" mysql -u"$WP_DB_USER" -p"$WP_DB_PASSWORD" -e "SHOW DATABASES;"
+              docker exec "$DB_CONTAINER" mysql -u"$WP_DB_USER" -p"$WP_DB_PASSWORD" --ssl-mode=DISABLED -e "SHOW DATABASES;"
               break
             fi
             echo "Waiting for MySQL..."
@@ -89,7 +88,7 @@ jobs:
       - name: Tester MySQL depuis WordPress
         run: |
           WP_CONTAINER=$(docker compose ps -q wordpress)
-          docker exec "$WP_CONTAINER" mysql -h db -u"$WP_DB_USER" -p"$WP_DB_PASSWORD" -e "SHOW DATABASES;"
+          docker exec "$WP_CONTAINER" mysql -h 127.0.0.1 -u"$WP_DB_USER" -p"$WP_DB_PASSWORD" --ssl-mode=DISABLED -e "SHOW DATABASES;"
 
       - name: Wait for WordPress container
         run: |
