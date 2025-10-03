@@ -34,7 +34,7 @@ jobs:
 
       - name: Configure docker-compose.yml
         run: |
-          cat > docker-compose.yml <<'EOF'
+          cat > docker-compose.yml <<EOF
           version: '3.8'
           services:
             db:
@@ -61,7 +61,7 @@ jobs:
               environment:
                 WORDPRESS_DB_HOST: db:3306
                 WORDPRESS_DB_USER: user
-                WORDPRESS_DB_PASSWORD: ${{ env.WP_PASSWORD }}
+                WORDPRESS_DB_PASSWORD: $WP_PASSWORD
                 WORDPRESS_DB_NAME: wordpress
 
             adminer:
@@ -114,7 +114,7 @@ jobs:
         run: docker push $DOCKER_IMAGE
 
       - name: Afficher le mot de passe WordPress
-        run: echo "Le mot de passe WordPress est : ${{ env.WP_PASSWORD }}"
+        run: echo "Le mot de passe WordPress est : $WP_PASSWORD"
 
       - name: Nettoyage
         if: always()
