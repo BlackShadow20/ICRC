@@ -2,7 +2,7 @@ name: CI/CD LAMP
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "master" ]
   pull_request:
   workflow_dispatch:
 
@@ -11,6 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       WP_DB_USER: user
+      WP_DB_PASSWORD: poseidon
       WP_DB_NAME: wordpress
       WP_DB_HOST: db:3306
       DOCKER_IMAGE: blackshadow20/icrc:latest
@@ -19,52 +20,102 @@ jobs:
       - name: Vérification du code
         uses: actions/checkout@v4
 
-      - name: Générer un mot de passe aléatoire
-        id: gen-pass
-        run: |
-          PASS=$(openssl rand -hex 12)
-          echo "WP_DB_PASSWORD=$PASS" >> $GITHUB_ENV
-          echo "Mot de passe généré : $PASS"
-
       - name: Configuration Docker
         run: |
           docker --version
           docker compose version || true
 
+      - name: Générer un mot de passe WordPress aléatoire
+        id: wp_password
+        run: |
+          WP_PASS=$(openssl rand -base64 16)
+          echo "WP_PASSWORD=$WP_PASS" >> $GITHUB_ENV
+          echo "Mot de passe WordPress généré : $WP_PASS"
+
       - name: Configure docker-compose.yml
         run: |
-          cat > docker-compose.yml <<EOF
-version: '3.8'
-services:
-  db:
-    image: mysql:8.0
-    environment:
-      MYSQL_DATABASE: $WP_DB_NAME
-      MYSQL_USER: $WP_DB_USER
-      MYSQL_PASSWORD: $WP_DB_PASSWORD
-      MYSQL_ROOT_PASSWORD: $WP_DB_PASSWORD
-    ports:
-      - "3306:3306"
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 5s
-      retries: 5
+          cat > docker-compose.yml <<'EOF'
+          version: '3.8'
+          services:
+            db:
+              image: mysql:8.0
+              environment:
+                MYSQL_DATABASE: wordpress
+                MYSQL_USER: user
+                MYSQL_PASSWORD: poseidon
+                MYSQL_ROOT_PASSWORD: poseidon
+              ports:
+                - "3306:3306"
+              healthcheck:
+                test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+                interval: 5s
+                retries: 5
 
-  wordpress:
-    image: wordpress:latest
-    depends_on:
-      db:
-        condition: service_healthy
-    ports:
-      - "8080:80"
-    environment:
-      WORDPRESS_DB_HOST: db:3306
-      WORDPRESS_DB_USER: $WP_DB_USER
-      WORDPRESS_DB_PASSWORD: $WP_DB_PASSWORD
-      WORDPRESS_DB_NAME: $WP_DB_NAME
+            wordpress:
+              image: wordpress:latest
+              depends_on:
+                db:
+                  condition: service_healthy
+              ports:
+                - "8080:80"
+              environment:
+                WORDPRESS_DB_HOST: db:3306
+                WORDPRESS_DB_USER: user
+                WORDPRESS_DB_PASSWORD: ${{ env.WP_PASSWORD }}
+                WORDPRESS_DB_NAME: wordpress
 
-  adminer:
-    image: adminer
-    ports:
-      - "8081:8080"
-EOF
+            adminer:
+              image: adminer
+              ports:
+                - "8081:8080"
+          EOF
+
+      - name: Lance Docker Compose
+        run: docker compose up -d
+
+      - name: Wait for MySQL container
+        run: |
+          echo "Waiting for MySQL container..."
+          DB_CONTAINER=$(docker compose ps -q db)
+          for i in {1..30}; do
+            if docker exec "$DB_CONTAINER" mysql -u"$WP_DB_USER" -p"$WP_DB_PASSWORD" -e "SELECT 1" >/dev/null 2>&1; then
+              echo "MySQL is ready!"
+              break
+            fi
+            echo "Waiting for MySQL..."
+            sleep 2
+          done
+
+      - name: Wait for WordPress container
+        run: |
+          echo "Waiting for WordPress container..."
+          for i in {1..30}; do
+            if curl -sf http://localhost:8080 >/dev/null; then
+              echo "WordPress is ready!"
+              break
+            fi
+            echo "Waiting for WordPress..."
+            sleep 2
+          done
+
+      - name: Test WordPress
+        run: curl -f http://localhost:8080 || exit 1
+
+      - name: Construire l’image Docker
+        run: docker build -t $DOCKER_IMAGE .
+
+      - name: Connexion au Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      - name: Push Image Docker
+        run: docker push $DOCKER_IMAGE
+
+      - name: Afficher le mot de passe WordPress
+        run: echo "Le mot de passe WordPress est : ${{ env.WP_PASSWORD }}"
+
+      - name: Nettoyage
+        if: always()
+        run: docker compose down
