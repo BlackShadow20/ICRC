@@ -53,8 +53,8 @@ jobs:
                 - "8080:80"
               environment:
                 WORDPRESS_DB_HOST: db:3306
-                WORDPRESS_DB_USER: user
-                WORDPRESS_DB_PASSWORD: poseidon
+                WORDPRESS_DB_USER: jean
+                WORDPRESS_DB_PASSWORD: ${{ secrets.MOT_DE_PASSE_WP }}
                 WORDPRESS_DB_NAME: wordpress
 
             adminer:
@@ -82,7 +82,7 @@ jobs:
       - name: Wait for WordPress container
         run: |
           echo "Waiting for WordPress container..."
-          for i in {1..30}; do
+          for i in {1..60}; do
             if curl -sf http://127.0.0.1:8080 >/dev/null; then
               echo "WordPress is ready!"
               break
