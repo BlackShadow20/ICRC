@@ -66,17 +66,28 @@ jobs:
       - name: Lance Docker Compose
         run: docker compose up -d
 
-      - name: Wait for MySQL container
+- name: Wait for MySQL container
         run: |
           echo "Waiting for MySQL container..."
           DB_CONTAINER=$(docker compose ps -q db)
           for i in {1..30}; do
-            if docker exec "$DB_CONTAINER" mysql -u"$WP_DB_USER" -p"$WP_DB_PASSWORD" --ssl-mode=DISABLED -e "SELECT 1" >/dev/null 2>&1; then
+            if docker exec "$DB_CONTAINER" mysql -u"$WP_DB_USER" -p"$WP_DB_PASSWORD" -e "SELECT 1" >/dev/null 2>&1; then
               echo "MySQL is ready!"
-              docker exec "$DB_CONTAINER" mysql -u"$WP_DB_USER" -p"$WP_DB_PASSWORD" --ssl-mode=DISABLED -e "SHOW DATABASES;"
               break
             fi
             echo "Waiting for MySQL..."
+            sleep 2
+          done
+
+      - name: Wait for WordPress container
+        run: |
+          echo "Waiting for WordPress container..."
+          for i in {1..60}; do
+            if curl -sf http://127.0.0.1:8080 >/dev/null; then
+              echo "WordPress is ready!"
+              break
+            fi
+            echo "Waiting for WordPress..."
             sleep 2
           done
 
@@ -88,7 +99,7 @@ jobs:
       - name: Tester MySQL depuis WordPress
         run: |
           WP_CONTAINER=$(docker compose ps -q wordpress)
-          docker exec "$WP_CONTAINER" mysql -h 127.0.0.1 -u"$WP_DB_USER" -p"$WP_DB_PASSWORD" --ssl-mode=DISABLED -e "SHOW DATABASES;"
+          docker exec "$WP_CONTAINER" mysql -h 127.0.0.1 -u"$WP_DB_USER" -p"$WP_DB_PASSWORD"  -e "SHOW DATABASES;"
 
       - name: Wait for WordPress container
         run: |
