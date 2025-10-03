@@ -32,7 +32,6 @@ jobs:
           services:
             db:
               image: mysql:8.0
-              container_name: db
               environment:
                 MYSQL_DATABASE: wordpress
                 MYSQL_USER: jean
@@ -74,7 +73,6 @@ jobs:
           for i in {1..30}; do
             if docker exec "$DB_CONTAINER" mysql -u"$WP_DB_USER" -p"$WP_DB_PASSWORD" -e "SELECT 1" >/dev/null 2>&1; then
               echo "MySQL is ready!"
-              docker exec "$DB_CONTAINER" mysql -u"$WP_DB_USER" -p"$WP_DB_PASSWORD" -e "SHOW DATABASES;"
               break
             fi
             echo "Waiting for MySQL..."
