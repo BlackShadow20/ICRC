@@ -21,7 +21,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
           source: "./"
-          target: "/var/www/html"
+          target: "/var/www/app"
 
       - name: Setup Nginx and restart service
         uses: appleboy/ssh-action@v1.2.0
@@ -35,13 +35,13 @@ jobs:
               sudo apt update -y
               sudo apt install -y nginx
             fi
-            sudo mkdir -p /var/www/
-            sudo chown -R $USER:$USER /var/www/html
+            sudo mkdir -p /var/www/app
+            sudo chown -R $USER:$USER /var/www/app
             sudo tee /etc/nginx/sites-available/app > /dev/null <<EOF
             server {
               listen 80;
               server_name _;
-              root /var/www/html;
+              root /var/www/app;
               index index.html;
               location / {
                 try_files \$uri \$uri/ =404;
