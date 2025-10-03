@@ -35,7 +35,7 @@ jobs:
               sudo apt update -y
               sudo apt install -y nginx
             fi
-            #sudo mkdir -p /var/www/
+            sudo mkdir -p /var/www/
             sudo chown -R $USER:$USER /var/www/html
             sudo tee /etc/nginx/sites-available/app > /dev/null <<EOF
             server {
