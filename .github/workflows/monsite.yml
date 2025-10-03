@@ -1,4 +1,4 @@
-name: Déploiement sous Nginx v4
+name: Déploiement Site Web Alex&Malik
 
 on:
   push:
