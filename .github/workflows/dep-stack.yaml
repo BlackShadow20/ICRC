@@ -36,7 +36,7 @@ jobs:
         run: |
           # Le contenu du fichier docker-compose.yml doit être aligné à gauche 
           # pour être écrit correctement par le 'cat'.
-          cat > docker-compose.yml <<EOF
+          #cat > docker-compose.yml <<EOF
 version: '3.8'
 services:
   db:
