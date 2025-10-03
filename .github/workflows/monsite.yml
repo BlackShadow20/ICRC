@@ -21,9 +21,9 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
-        script: |
-          sudo mkdir -p /var/www/app
-          sudo chown -R $USER:$USER /var/www/app
+          script: |
+            sudo mkdir -p /var/www/app
+            sudo chown -R $USER:$USER /var/www/app
 
       - name: Copier les fichiers avec SCP
         uses: appleboy/scp-action@v0.1.7
@@ -42,26 +42,26 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
-        script: |
-          if ! command -v nginx >/dev/null 2>&1; then
-            sudo apt update -y
-            sudo apt install -y nginx
-          fi
+          script: |
+            if ! command -v nginx >/dev/null 2>&1; then
+              sudo apt update -y
+              sudo apt install -y nginx
+            fi
 
-          tee /tmp/app_nginx_conf > /dev/null <<EOF
-          server {
-            listen 80;
-            server_name _;
-            root /var/www/app;
-            index index.html;
+            tee /tmp/app_nginx_conf > /dev/null <<EOF
+            server {
+              listen 80;
+              server_name _;
+              root /var/www/app;
+              index index.html;
 
-            location / {
-              try_files \$uri \$uri/ =404;
+              location / {
+                try_files \$uri \$uri/ =404;
+              }
             }
-          }
-          EOF
+            EOF
 
-          sudo mv /tmp/app_nginx_conf /etc/nginx/sites-available/app
-          sudo ln -sf /etc/nginx/sites-available/app /etc/nginx/sites-enabled/app
-          sudo nginx -t
-          sudo systemctl restart nginx
+            sudo mv /tmp/app_nginx_conf /etc/nginx/sites-available/app
+            sudo ln -sf /etc/nginx/sites-available/app /etc/nginx/sites-enabled/app
+            sudo nginx -t
+            sudo systemctl restart nginx
