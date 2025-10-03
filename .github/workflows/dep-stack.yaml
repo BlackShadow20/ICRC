@@ -92,7 +92,7 @@ jobs:
           done
 
       - name: Test WordPress
-        run: curl -f http://localhost:8080 || exit 1
+        run: curl -f http://127.0.0.1:8080 || exit 1
 
       - name: Construire l’image Docker
         run: docker build -t $DOCKER_IMAGE .
