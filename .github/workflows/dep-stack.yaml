@@ -10,8 +10,8 @@ jobs:
   ci-cd:
     runs-on: ubuntu-latest
     env:
-      WP_DB_USER: user
-      WP_DB_PASSWORD: poseidon
+      WP_DB_USER: jean
+      WP_DB_PASSWORD: ${{ secrets.MOT_DE_PASSE_WP }}
       WP_DB_NAME: wordpress
       WP_DB_HOST: db:3306
       DOCKER_IMAGE: blackshadow20/icrc:latest
@@ -34,9 +34,9 @@ jobs:
               image: mysql:8.0
               environment:
                 MYSQL_DATABASE: wordpress
-                MYSQL_USER: user
-                MYSQL_PASSWORD: poseidon
-                MYSQL_ROOT_PASSWORD: poseidon
+                MYSQL_USER: jean
+                MYSQL_PASSWORD: ${{ secrets.MOT_DE_PASSE_WP }}
+                MYSQL_ROOT_PASSWORD: ${{ secrets.MOT_DE_PASSE_WP }}
               ports:
                 - "3306:3306"
               healthcheck:
