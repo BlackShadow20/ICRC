@@ -11,7 +11,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       WP_DB_USER: user
-      WP_DB_PASSWORD: poseidon
       WP_DB_NAME: wordpress
       WP_DB_HOST: db:3306
       DOCKER_IMAGE: blackshadow20/icrc:latest
@@ -20,57 +19,51 @@ jobs:
       - name: Vérification du code
         uses: actions/checkout@v4
 
+      - name: Générer un mot de passe aléatoire pour la BD
+        run: echo "RANDOM_DB_PASSWORD=$(openssl rand -base64 16)" >> $GITHUB_ENV
+
       - name: Configuration Docker
         run: |
           docker --version
           docker compose version || true
 
-      - name: Générer un mot de passe WordPress aléatoire
-        id: wp_password
-        run: |
-          WP_PASS=$(openssl rand -base64 16)
-          echo "WP_PASSWORD=$WP_PASS" >> $GITHUB_ENV
-          echo "Mot de passe WordPress généré : $WP_PASS"
-
       - name: Configure docker-compose.yml
         run: |
-          # Le contenu du fichier docker-compose.yml doit être aligné à gauche 
-          # pour être écrit correctement par le 'cat'.
-          #cat > docker-compose.yml <<EOF
-version: '3.8'
-services:
-  db:
-    image: mysql:8.0
-    environment:
-      MYSQL_DATABASE: wordpress
-      MYSQL_USER: user
-      MYSQL_PASSWORD: poseidon
-      MYSQL_ROOT_PASSWORD: poseidon
-    ports:
-      - "3306:3306"
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 5s
-      retries: 5
+          cat > docker-compose.yml <<EOF
+          version: '3.8'
+          services:
+            db:
+              image: mysql:8.0
+              environment:
+                MYSQL_DATABASE: ${{ env.WP_DB_NAME }}
+                MYSQL_USER: ${{ env.WP_DB_USER }}
+                MYSQL_PASSWORD: ${{ env.RANDOM_DB_PASSWORD }}
+                MYSQL_ROOT_PASSWORD: ${{ env.RANDOM_DB_PASSWORD }}
+              ports:
+                - "3306:3306"
+              healthcheck:
+                test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+                interval: 5s
+                retries: 5
 
-  wordpress:
-    image: wordpress:latest
-    depends_on:
-      db:
-        condition: service_healthy
-    ports:
-      - "8080:80"
-    environment:
-      WORDPRESS_DB_HOST: db:3306
-      WORDPRESS_DB_USER: user
-      WORDPRESS_DB_PASSWORD: $WP_PASSWORD
-      WORDPRESS_DB_NAME: wordpress
+            wordpress:
+              image: wordpress:latest
+              depends_on:
+                db:
+                  condition: service_healthy
+              ports:
+                - "8080:80"
+              environment:
+                WORDPRESS_DB_HOST: ${{ env.WP_DB_HOST }}
+                WORDPRESS_DB_USER: ${{ env.WP_DB_USER }}
+                WORDPRESS_DB_PASSWORD: ${{ env.RANDOM_DB_PASSWORD }}
+                WORDPRESS_DB_NAME: ${{ env.WP_DB_NAME }}
 
-  adminer:
-    image: adminer
-    ports:
-      - "8081:8080"
-#EOF # <-- CORRECTED: This line must have no leading spaces.
+            adminer:
+              image: adminer
+              ports:
+                - "8081:8080"
+          EOF
 
       - name: Lance Docker Compose
         run: docker compose up -d
@@ -80,7 +73,7 @@ services:
           echo "Waiting for MySQL container..."
           DB_CONTAINER=$(docker compose ps -q db)
           for i in {1..30}; do
-            if docker exec "$DB_CONTAINER" mysql -u"$WP_DB_USER" -p"$WP_DB_PASSWORD" -e "SELECT 1" >/dev/null 2>&1; then
+            if docker exec "$DB_CONTAINER" mysql -u"$WP_DB_USER" -p"$RANDOM_DB_PASSWORD" -e "SELECT 1" >/dev/null 2>&1; then
               echo "MySQL is ready!"
               break
             fi
@@ -103,6 +96,9 @@ services:
       - name: Test WordPress
         run: curl -f http://localhost:8080 || exit 1
 
+      - name: Afficher le mot de passe généré
+        run: echo "Le mot de passe généré pour la base de données est : ${{ env.RANDOM_DB_PASSWORD }}"
+
       - name: Construire l’image Docker
         run: docker build -t $DOCKER_IMAGE .
 
@@ -114,9 +110,6 @@ services:
 
       - name: Push Image Docker
         run: docker push $DOCKER_IMAGE
-
-      - name: Afficher le mot de passe WordPress
-        run: echo "Le mot de passe WordPress est : $WP_PASSWORD"
 
       - name: Nettoyage
         if: always()
