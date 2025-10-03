@@ -19,12 +19,12 @@ jobs:
       - name: Vérification du code
         uses: actions/checkout@v4
 
-      - name: Générer un mot de passe aléatoire
-        id: gen-pass
-        run: |
-          PASS=$(openssl rand -hex 12)
-          echo "WP_DB_PASSWORD=$PASS" >> $GITHUB_ENV
-          echo "Mot de passe généré : $PASS"
+- name: Générer un mot de passe aléatoire
+  id: gen-pass
+  run: |
+    PASS=$(openssl rand -hex 12)
+    echo "WP_DB_PASSWORD=$PASS" >> $GITHUB_ENV
+    echo "Mot de passe généré : $PASS"
 
       - name: Configuration Docker
         run: |
