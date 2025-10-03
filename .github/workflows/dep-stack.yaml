@@ -19,21 +19,21 @@ jobs:
       - name: Vérification du code
         uses: actions/checkout@v4
 
-- name: Générer un mot de passe aléatoire
-  id: gen-pass
-  run: |
-    PASS=$(openssl rand -hex 12)
-    echo "WP_DB_PASSWORD=$PASS" >> $GITHUB_ENV
-    echo "Mot de passe généré : $PASS"
+      - name: Générer un mot de passe aléatoire
+        id: gen-pass
+        run: |
+          PASS=$(openssl rand -hex 12)
+          echo "WP_DB_PASSWORD=$PASS" >> $GITHUB_ENV
+          echo "Mot de passe généré : $PASS"
 
       - name: Configuration Docker
         run: |
           docker --version
           docker compose version || true
 
-- name: Configure docker-compose.yml
-  run: |
-    cat > docker-compose.yml <<EOF
+      - name: Configure docker-compose.yml
+        run: |
+          cat > docker-compose.yml <<EOF
 version: '3.8'
 services:
   db:
@@ -68,4 +68,3 @@ services:
     ports:
       - "8081:8080"
 EOF
-
