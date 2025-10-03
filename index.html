@@ -3,238 +3,154 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>*: Site de Git Officiel</title>
-  <meta name="description" content="Page d'accueil stylée pour le site de Git — exemple coloré avec emoji">
+  <title>Mon projet — CI/CD Malik & Alex</title>
+  <meta name="description" content="Page de présentation du projet avec statut CI/CD, badges et instructions de déploiement.">
   <style>
-    :root{
-      --bg1: #0f172a;
-      --bg2: #0f2a4a;
-      --card: rgba(255,255,255,0.06);
-      --accent1: #06b6d4; /* cyan */
-      --accent2: #7c3aed; /* violet */
-      --glass: rgba(255,255,255,0.04);
-      --muted: rgba(255,255,255,0.7);
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
-      background: linear-gradient(135deg,var(--bg1) 0%, var(--bg2) 100%);
-      color: #fff;
-      -webkit-font-smoothing:antialiased;
-      -moz-osx-font-smoothing:grayscale;
-      min-height:100vh;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:2rem;
-    }
-    .container{
-      width:100%;
-      max-width:1100px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
-      border-radius:18px;
-      box-shadow: 0 10px 30px rgba(2,6,23,0.6);
-      overflow:hidden;
-      display:grid;
-      grid-template-columns: 1fr 420px;
-      gap:24px;
-      padding:28px;
-      backdrop-filter: blur(6px) saturate(120%);
-      border: 1px solid rgba(255,255,255,0.04);
-    }
-    header h1{
-      margin:0 0 8px 0;
-      font-size:clamp(20px,4vw,36px);
-      line-height:1.05;
-      letter-spacing: -0.5px;
-    }
-    header p.lead{
-      margin:0 0 18px 0;
-      color:var(--muted);
-      font-size:15px;
-    }
-    .hero{
-      padding:18px 22px;
-    }
-    .badge{
-      display:inline-flex;
-      gap:10px;
-      align-items:center;
-      background:linear-gradient(90deg,var(--accent1),var(--accent2));
-      padding:8px 12px;
-      border-radius:999px;
-      font-weight:600;
-      color:#061018;
-      margin-bottom:14px;
-      box-shadow: 0 6px 18px rgba(12,18,30,0.5);
-    }
-    .cta-row{display:flex;gap:12px;align-items:center;margin-top:18px}
-    .btn{
-      padding:10px 14px;
-      border-radius:10px;
-      font-weight:700;
-      cursor:pointer;
-      border: none;
-      background: var(--glass);
-      color: #fff;
-      transition:transform .12s ease, box-shadow .12s ease;
-    }
-    .btn.primary{
-      background: linear-gradient(90deg,var(--accent1),var(--accent2));
-      color:#021320;
-      box-shadow: 0 8px 24px rgba(124,58,237,0.18);
-    }
-    .btn:active{transform:translateY(1px)}
-    .features{
-      display:grid;
-      grid-template-columns: repeat(2, minmax(0,1fr));
-      gap:12px;
-      margin-top:18px;
-    }
-    .card{
-      background: var(--card);
-      padding:12px;
-      border-radius:12px;
-      border:1px solid rgba(255,255,255,0.03);
-    }
-    .right-panel{
-      padding:20px;
-      display:flex;
-      flex-direction:column;
-      gap:14px;
-      align-items:stretch;
-    }
-    .repo-card{
-      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-      padding:14px;
-      border-radius:12px;
-      border:1px solid rgba(255,255,255,0.03);
-    }
-    .small{font-size:13px;color:var(--muted)}
-    footer{margin-top:18px;color:var(--muted);font-size:13px}
-    .logo{
-      display:inline-grid;
-      place-items:center;
-      width:56px;height:56px;border-radius:12px;
-      background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
-      border:1px solid rgba(255,255,255,0.04);
-      margin-right:12px;
-    }
-    .hero-grid{display:flex;align-items:center}
-    pre.cmd{background:rgba(0,0,0,0.2);padding:10px;border-radius:8px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;font-size:13px}
-    @media (max-width:900px){
-      .container{grid-template-columns:1fr;}
-      .right-panel{order:2}
-    }
+    :root{--bg:#0f1724;--card:#0b1220;--accent:#0ea5a4;--muted:#94a3b8;color-scheme:dark}
+    html,body{height:100%;margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial}
+    body{background:linear-gradient(180deg,#071024 0%, #071726 60%);color:#e6eef6;display:flex;align-items:flex-start;justify-content:center;padding:48px}
+    .wrap{max-width:980px;width:100%}
+    header{display:flex;align-items:center;gap:16px;margin-bottom:28px}
+    .logo{width:64px;height:64px;border-radius:12px;background:linear-gradient(135deg,var(--accent),#5eead4);display:flex;align-items:center;justify-content:center;font-weight:700;color:#042028}
+    h1{margin:0;font-size:28px}
+    p.lead{margin:4px 0 0;color:var(--muted)}
+
+    .card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.04);padding:20px;border-radius:12px;box-shadow:0 6px 18px rgba(2,6,23,0.6)}
+    .grid{display:grid;grid-template-columns:1fr 320px;gap:18px}
+    .badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+    .badge img{height:24px}
+
+    section h2{margin:0 0 8px;font-size:18px}
+    .meta{font-size:13px;color:var(--muted)}
+    pre{background:#04101a;padding:12px;border-radius:8px;overflow:auto;font-size:13px}
+    .steps{display:flex;flex-direction:column;gap:12px}
+    .step{display:flex;gap:12px;align-items:flex-start}
+    .dot{width:14px;height:14px;border-radius:50%;background:var(--accent);flex:0 0 14px;margin-top:6px}
+
+    footer{margin-top:18px;text-align:center;color:var(--muted);font-size:13px}
+
+    @media (max-width:880px){.grid{grid-template-columns:1fr}body{padding:20px}}
   </style>
 </head>
 <body>
-  <main class="container" role="main">
-    <section class="hero">
-      <div class="hero-grid">
-        <div class="logo" aria-hidden="true">🔧</div>
-        <div>
-          <header>
-            <div class="badge">✨ Nouveau · Demo</div>
-            <h1>*: Site de Git Officiel — Bienvenue ! 🐙</h1>
-            <p class="lead">Un petit site stylé pour présenter Git, son workflow et comment se connecter depuis ta machine. Simple, clair et coloré.</p>
-          </header>
-        </div>
+  <div class="wrap">
+    <header>
+      <div class="logo">CI</div>
+      <div>
+        <h1>Mon projet — Pipeline CI/CD</h1>
+        <p class="lead">Page de présentation destinée à GitHub Pages — statut des builds, instructions de déploiement et badge de production.</p>
       </div>
+    </header>
 
-      <div class="features" style="margin-top:16px;">
-        <div class="card">
-          <strong>🔐 Authentification</strong>
-          <div class="small">SSH recommandé — plus sûr et pratique pour push/pull sans mot de passe.</div>
-        </div>
-        <div class="card">
-          <strong>⚡ Rapide</strong>
-          <div class="small">Configuration locale et globale, remote SSH, et bonnes pratiques.</div>
-        </div>
-        <div class="card">
-          <strong>🧭 Guide</strong>
-          <div class="small">Exemples de commandes utiles pour démarrer rapidement.</div>
-        </div>
-        <div class="card">
-          <strong>🎨 Personnalisation</strong>
-          <div class="small">Thème sombre, couleurs vives et emoji pour rendre l'interface fun.</div>
-        </div>
-      </div>
-
-      <div class="cta-row">
-        <button class="btn primary" onclick="copyExample()">📋 Copier les commandes Git</button>
-        <button class="btn" onclick="openRepo()">🔗 Voir le dépôt</button>
-      </div>
-
-      <div style="margin-top:16px">
-        <div class="card">
-          <strong>Exemple rapide</strong>
-          <pre class="cmd" id="cmdSample"># Générer une clé SSH
-ssh-keygen -t ed25519 -C "ton.email@example.com"
-
-# Ajouter la clé à l'agent
-eval "$(ssh-agent -s)" && ssh-add ~/.ssh/id_ed25519
-
-# Changer le remote en SSH
-git remote set-url origin git@github.com:utilisateur/repo.git
-
-# Envoyer la branche principale
-git push -u origin master
-</pre>
-        </div>
-      </div>
-
-      <footer>
-        ✨ Construit avec ❤️ — Amuse-toi bien avec Git !
-      </footer>
-    </section>
-
-    <aside class="right-panel">
-      <div class="repo-card">
-        <div style="display:flex;justify-content:space-between;align-items:center;">
-          <div>
-            <div style="font-weight:800">🐙 Mon dépôt demo</div>
-            <div class="small">git@github.com:utilisateur/demo.git</div>
+    <div class="grid">
+      <main class="card">
+        <section>
+          <h2>Statut &amp; Badges</h2>
+          <p class="meta">Remplacez les URLs des badges par celles fournies par vos actions GitHub / GitLab / CircleCI / Travis.</p>
+          <div class="badges">
+            <!-- Exemples de badges : remplacez les liens ci-dessous -->
+            <span class="badge"><img alt="Build status" src="https://img.shields.io/github/actions/workflow/status/OWNER/REPO/ci.yml?label=build&logo=github&style=for-the-badge"></span>
+            <span class="badge"><img alt="Coverage" src="https://img.shields.io/codecov/c/github/OWNER/REPO?style=for-the-badge"></span>
+            <span class="badge"><img alt="License" src="https://img.shields.io/github/license/OWNER/REPO?style=for-the-badge"></span>
+            <span class="badge"><img alt="Deploy" src="https://img.shields.io/badge/deploy-production-success?style=for-the-badge"></span>
           </div>
-          <div style="text-align:right;">
-            <div style="font-weight:700">⭐ 123</div>
-            <div class="small">Forks · 42</div>
+        </section>
+
+        <hr style="margin:16px 0;border:none;border-top:1px solid rgba(255,255,255,0.04)">
+
+        <section>
+          <h2>Présentation rapide</h2>
+          <p class="meta">Ce projet est conçu pour être construit automatiquement, testé et déployé à chaque push sur la branche <code>main</code> (ou celle que vous aurez configurée).</p>
+          <ul>
+            <li>Tests unitaires et linting dans l'étape CI.</li>
+            <li>Build artefact + image Docker (si nécessaire).</li>
+            <li>Push vers registre et déploiement automatique (CD).</li>
+          </ul>
+        </section>
+
+        <section style="margin-top:14px">
+          <h2>Workflow recommandé</h2>
+          <div class="steps">
+            <div class="step"><div class="dot"></div><div><strong>Commit &amp; PR</strong><div class="meta">Branch feature → PR vers main</div></div></div>
+            <div class="step"><div class="dot"></div><div><strong>CI - Tests &amp; Lint</strong><div class="meta">Exécuter tests unitaires, intégration rapide et analyse statique</div></div></div>
+            <div class="step"><div class="dot"></div><div><strong>Build</strong><div class="meta">Packaging, build Docker image, génération d'artefacts</div></div></div>
+            <div class="step"><div class="dot"></div><div><strong>CD - Déploiement</strong><div class="meta">Déployer sur staging puis production après validations</div></div></div>
           </div>
-        </div>
-        <div style="margin-top:12px;display:flex;gap:8px;">
-          <button class="btn" onclick="cloneDemo()">⤓ Clone</button>
-          <button class="btn" onclick="openRepo()">🔍 Ouvrir</button>
-        </div>
-      </div>
+        </section>
 
-      <div class="card">
-        <strong>Astuce rapide</strong>
-        <div class="small" style="margin-top:8px">Si tu as plusieurs clés SSH, utilise <code>ssh-add -l</code> pour les lister et <code>ssh -T git@github.com</code> pour tester l'authentification.</div>
-      </div>
+        <section style="margin-top:14px">
+          <h2>Extrait de configuration (GitHub Actions)</h2>
+          <pre><code># .github/workflows/ci-cd.yml
+name: CI/CD
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
 
-      <div class="card">
-        <strong>Contact</strong>
-        <div class="small" style="margin-top:8px">Besoin d'aide ? Ouvre une issue sur le dépôt ou contacte <em>support@example.com</em>.</div>
-      </div>
-    </aside>
-  </main>
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup
+        run: echo "Setup, install deps..."
+      - name: Tests
+        run: echo "pytest -q"
+      - name: Build
+        run: echo "docker build -t ghcr.io/${{ github.repository }}:latest ."
+      - name: Publish
+        if: github.ref == 'refs/heads/main'
+        run: echo "push image to registry / trigger deploy"
+</code></pre>
+        </section>
 
-  <script>
-    function copyExample(){
-      const txt = document.getElementById('cmdSample').innerText;
-      navigator.clipboard?.writeText(txt).then(()=>{
-        alert('Commandes copiées dans le presse-papiers ✅');
-      }).catch(()=>{
-        prompt('Copie manuellement:', txt);
-      });
-    }
-    function openRepo(){
-      window.open('https://github.com', '_blank');
-    }
-    function cloneDemo(){
-      prompt('Commande de clone', 'git clone git@github.com:utilisateur/demo.git');
-    }
-  </script>
+        <section style="margin-top:14px">
+          <h2>Quick start</h2>
+          <ol>
+            <li>Forker le dépôt et créer une branche feature.</li>
+            <li>Ouvrir une PR; CI s'exécutera automatiquement.</li>
+            <li>Après merge vers <code>main</code>, CD déploiera sur staging, puis prod si configuré.</li>
+          </ol>
+        </section>
+
+      </main>
+
+      <aside class="card">
+        <section>
+          <h2>Infos rapides</h2>
+          <p class="meta"><strong>Repository :</strong> OWNER/REPO</p>
+          <p class="meta"><strong>Branch de prod :</strong> main</p>
+          <p class="meta"><strong>Outils CI/CD suggérés :</strong> GitHub Actions, Docker, Kubernetes / Heroku / Netlify</p>
+        </section>
+
+        <hr style="margin:12px 0;border:none;border-top:1px solid rgba(255,255,255,0.04)">
+
+        <section>
+          <h2>Notes</h2>
+          <p class="meta">- Pensez à ajouter des secrets (REGISTRY_TOKEN, SSH_KEY, etc.) dans les settings du repo.
+- Ajoutez une étape de rollback pour gérer les déploiements qui échouent.
+- Activez les protections de branches et les revues de code obligatoires.</p>
+        </section>
+
+        <hr style="margin:12px 0;border:none;border-top:1px solid rgba(255,255,255,0.04)">
+
+        <section>
+          <h2>Commandes utiles</h2>
+          <pre><code>git clone git@github.com:OWNER/REPO.git
+cd REPO
+# run tests
+pytest
+# build docker
+docker build -t myapp:local .
+</code></pre>
+        </section>
+      </aside>
+    </div>
+
+    <footer>
+      Page générée automatiquement — remplacez OWNER/REPO par vos valeurs. Besoin d'ajustements ? Dites-moi ce que vous voulez modifier.
+    </footer>
+  </div>
 </body>
 </html>
