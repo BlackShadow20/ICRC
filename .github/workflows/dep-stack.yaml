@@ -11,6 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       WP_DB_USER: user
+      WP_DB_PASSWORD: poseidon
       WP_DB_NAME: wordpress
       WP_DB_HOST: db:3306
       DOCKER_IMAGE: blackshadow20/icrc:latest
@@ -19,66 +20,58 @@ jobs:
       - name: Vérification du code
         uses: actions/checkout@v4
 
-      - name: Générer un mot de passe aléatoire pour la BD
-        id: generate-password
-        run: echo "DB_PASSWORD=$(openssl rand -base64 16)" >> $GITHUB_OUTPUT
-
       - name: Configuration Docker
         run: |
           docker --version
           docker compose version || true
 
-      - name: Create docker-compose.yml
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const fs = require('fs');
-            const yaml = `
-            version: '3.8'
-            services:
-              db:
-                image: mysql:8.0
-                environment:
-                  MYSQL_DATABASE: ${{ env.WP_DB_NAME }}
-                  MYSQL_USER: ${{ env.WP_DB_USER }}
-                  MYSQL_PASSWORD: ${{ steps.generate-password.outputs.DB_PASSWORD }}
-                  MYSQL_ROOT_PASSWORD: ${{ steps.generate-password.outputs.DB_PASSWORD }}
-                ports:
-                  - "3306:3306"
-                healthcheck:
-                  test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-                  interval: 5s
-                  retries: 5
-              wordpress:
-                image: wordpress:latest
-                depends_on:
-                  db:
-                    condition: service_healthy
-                ports:
-                  - "8080:80"
-                environment:
-                  WORDPRESS_DB_HOST: ${{ env.WP_DB_HOST }}
-                  WORDPRESS_DB_USER: ${{ env.WP_DB_USER }}
-                  WORDPRESS_DB_PASSWORD: ${{ steps.generate-password.outputs.DB_PASSWORD }}
-                  WORDPRESS_DB_NAME: ${{ env.WP_DB_NAME }}
-              adminer:
-                image: adminer
-                ports:
-                  - "8081:8080"
-            `;
-            fs.writeFileSync('docker-compose.yml', yaml.trim());
+      - name: Configure docker-compose.yml
+        run: |
+          cat > docker-compose.yml <<'EOF'
+          version: '3.8'
+          services:
+            db:
+              image: mysql:8.0
+              environment:
+                MYSQL_DATABASE: wordpress
+                MYSQL_USER: user
+                MYSQL_PASSWORD: poseidon
+                MYSQL_ROOT_PASSWORD: poseidon
+              ports:
+                - "3306:3306"
+              healthcheck:
+                test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+                interval: 5s
+                retries: 5
+
+            wordpress:
+              image: wordpress:latest
+              depends_on:
+                db:
+                  condition: service_healthy
+              ports:
+                - "8080:80"
+              environment:
+                WORDPRESS_DB_HOST: db:3306
+                WORDPRESS_DB_USER: user
+                WORDPRESS_DB_PASSWORD: poseidon
+                WORDPRESS_DB_NAME: wordpress
+
+            adminer:
+              image: adminer
+              ports:
+                - "8081:8080"
+          EOF
 
       - name: Lance Docker Compose
         run: docker compose up -d
 
       - name: Wait for MySQL container
-        env:
-          MYSQL_PWD: ${{ steps.generate-password.outputs.DB_PASSWORD }}
         run: |
           echo "Waiting for MySQL container..."
           DB_CONTAINER=$(docker compose ps -q db)
           for i in {1..30}; do
-            if docker exec -e MYSQL_PWD "$DB_CONTAINER" mysql -u"$WP_DB_USER" -e "SELECT 1" >/dev/null 2>&1; then
+            if docker exec "$DB_CONTAINER" mysql -u"$WP_DB_USER" -p"$WP_DB_PASSWORD" -e "SELECT 1" >/dev/null 2>&1; then
               echo "MySQL is ready!"
               break
             fi
@@ -100,9 +93,6 @@ jobs:
 
       - name: Test WordPress
         run: curl -f http://localhost:8080 || exit 1
-
-      - name: Afficher le mot de passe généré
-        run: echo "Le mot de passe généré pour la base de données est : ${{ steps.generate-password.outputs.DB_PASSWORD }}"
 
       - name: Construire l’image Docker
         run: docker build -t $DOCKER_IMAGE .
