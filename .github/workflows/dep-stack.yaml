@@ -31,8 +31,8 @@ jobs:
           version: '3.8'
           services:
             db:
-              image: mysql:8.0
               container_name: db
+              image: mysql:8.0
               environment:
                 MYSQL_DATABASE: wordpress
                 MYSQL_USER: jean
@@ -54,9 +54,9 @@ jobs:
                 - "8080:80"
               environment:
                 WORDPRESS_DB_HOST: db:3306
-                WORDPRESS_DB_USER: jean
-                WORDPRESS_DB_PASSWORD: ${{ secrets.MOT_DE_PASSE_WP }}
-                WORDPRESS_DB_NAME: wordpress
+                WORDPRESS_DB_USER: ${{ env.WP_DB_USER }}
+                WORDPRESS_DB_PASSWORD: ${{ env.WP_DB_PASSWORD }}
+                WORDPRESS_DB_NAME: ${{ env.WP_DB_NAME }}
 
             adminer:
               image: adminer
@@ -80,6 +80,16 @@ jobs:
             echo "Waiting for MySQL..."
             sleep 2
           done
+
+      - name: Installer MySQL client dans WordPress
+        run: |
+          WP_CONTAINER=$(docker compose ps -q wordpress)
+          docker exec "$WP_CONTAINER" bash -c "apt-get update && apt-get install -y default-mysql-client"
+
+      - name: Tester MySQL depuis WordPress
+        run: |
+          WP_CONTAINER=$(docker compose ps -q wordpress)
+          docker exec "$WP_CONTAINER" mysql -h db -u"$WP_DB_USER" -p"$WP_DB_PASSWORD" -e "SHOW DATABASES;"
 
       - name: Wait for WordPress container
         run: |
