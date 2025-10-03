@@ -9,38 +9,21 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Installer dépendances et build
-        run: |
-          npm install
-          npm run build
-
-      - name: Préparer le dossier cible
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.SSH_PORT }}
-          script: |
-            sudo mkdir -p /var/www/app
-            sudo chown -R $USER:$USER /var/www/app
-
-      - name: Copier les fichiers avec SCP
+      - name: Copy files with SCP
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
-          source: "./build"   # <-- ou ./dist, selon ton projet
+          source: "./"
           target: "/var/www/app"
 
-      - name: Installer et configurer Nginx
+      - name: Setup Nginx and restart service
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -49,24 +32,23 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           script: |
             if ! command -v nginx >/dev/null 2>&1; then
-              sudo apt update -y
-              sudo apt install -y nginx
+              apt update -y
+              apt install -y nginx
             fi
-
-            tee /tmp/app_nginx_conf > /dev/null <<EOF
+            mkdir -p /var/www/app
+            chown -R $USER:$USER /var/www/app
+            tee /etc/nginx/sites-available/app > /dev/null <<EOF
             server {
               listen 80;
               server_name _;
               root /var/www/app;
               index index.html;
-
               location / {
                 try_files \$uri \$uri/ =404;
               }
             }
             EOF
+            ln -sf /etc/nginx/sites-available/app /etc/nginx/sites-enabled/app
+            nginx -t
+            systemctl restart nginx
 
-            sudo mv /tmp/app_nginx_conf /etc/nginx/sites-available/app
-            sudo ln -sf /etc/nginx/sites-available/app /etc/nginx/sites-enabled/app
-            sudo nginx -t
-            sudo systemctl restart nginx
