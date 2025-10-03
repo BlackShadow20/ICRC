@@ -31,86 +31,41 @@ jobs:
           docker --version
           docker compose version || true
 
-      - name: Configure docker-compose.yml
-        run: |
-          cat > docker-compose.yml <<EOF
-          version: '3.8'
-          services:
-            db:
-              image: mysql:8.0
-              environment:
-                MYSQL_DATABASE: $WP_DB_NAME
-                MYSQL_USER: $WP_DB_USER
-                MYSQL_PASSWORD: $WP_DB_PASSWORD
-                MYSQL_ROOT_PASSWORD: $WP_DB_PASSWORD
-              ports:
-                - "3306:3306"
-              healthcheck:
-                test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-                interval: 5s
-                retries: 5
+- name: Configure docker-compose.yml
+  run: |
+    cat > docker-compose.yml <<EOF
+version: '3.8'
+services:
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: $WP_DB_NAME
+      MYSQL_USER: $WP_DB_USER
+      MYSQL_PASSWORD: $WP_DB_PASSWORD
+      MYSQL_ROOT_PASSWORD: $WP_DB_PASSWORD
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      retries: 5
 
-            wordpress:
-              image: wordpress:latest
-              depends_on:
-                db:
-                  condition: service_healthy
-              ports:
-                - "8080:80"
-              environment:
-                WORDPRESS_DB_HOST: db:3306
-                WORDPRESS_DB_USER: $WP_DB_USER
-                WORDPRESS_DB_PASSWORD: $WP_DB_PASSWORD
-                WORDPRESS_DB_NAME: $WP_DB_NAME
+  wordpress:
+    image: wordpress:latest
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8080:80"
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: $WP_DB_USER
+      WORDPRESS_DB_PASSWORD: $WP_DB_PASSWORD
+      WORDPRESS_DB_NAME: $WP_DB_NAME
 
-            adminer:
-              image: adminer
-              ports:
-                - "8081:8080"
-          EOF
-
-      - name: Lance Docker Compose
-        run: docker compose up -d
-
-      - name: Attendre que MySQL soit prêt
-        run: |
-          DB_CONTAINER=$(docker compose ps -q db)
-          for i in {1..30}; do
-            if docker exec "$DB_CONTAINER" mysql -u"$WP_DB_USER" -p"$WP_DB_PASSWORD" -e "SELECT 1" >/dev/null 2>&1; then
-              echo "✅ MySQL est prêt !"
-              break
-            fi
-            echo "⏳ En attente de MySQL..."
-            sleep 2
-          done
-
-      - name: Attendre que WordPress soit prêt
-        run: |
-          for i in {1..30}; do
-            if curl -sf http://localhost:8080 >/dev/null; then
-              echo "✅ WordPress est prêt !"
-              break
-            fi
-            echo "⏳ En attente de WordPress..."
-            sleep 2
-          done
-
-      - name: Afficher le mot de passe généré
-        run: echo "🔑 Le mot de passe MySQL/WordPress est : $WP_DB_PASSWORD"
-
-      - name: Construire l’image Docker
-        run: docker build -t $DOCKER_IMAGE .
-
-      - name: Connexion au Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-
-      - name: Push Image Docker
-        run: docker push $DOCKER_IMAGE
-
-      - name: Nettoyage
-        if: always()
-        run: docker compose down
+  adminer:
+    image: adminer
+    ports:
+      - "8081:8080"
+EOF
 
