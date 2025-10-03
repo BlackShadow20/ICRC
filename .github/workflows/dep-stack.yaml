@@ -73,7 +73,7 @@ jobs:
         run: docker compose up -d
 
       - name: Attendre que WordPress soit prêt
-        run: |
+        run:
           for i in {1..30}; do
             if curl -sf http://localhost:8080 >/dev/null; then
               echo "✅ WordPress est prêt !"
